@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ember & Grain — Menu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #FAF7F2;
+      --surface:   #FFFFFF;
+      --charcoal:  #1C1C1C;
+      --mid:       #5A5550;
+      --divider:   #E2DDD6;
+      --gold:      #E8A838;
+      --gold-dark: #C48A1E;
+      --sage:      #7A8C6E;
+      --radius:    12px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--charcoal);
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      background: var(--charcoal);
+      color: var(--bg);
+      text-align: center;
+      padding: 64px 24px 48px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 70% 60% at 50% 110%, rgba(232,168,56,.22) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-eyebrow {
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 14px;
+    }
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.4rem, 7vw, 4rem);
+      font-weight: 700;
+      line-height: 1.1;
+      margin-bottom: 12px;
+    }
+    .hero h1 em {
+      font-style: italic;
+      color: var(--gold);
+    }
+    .hero-sub {
+      color: #BDB8B0;
+      font-size: 14px;
+      max-width: 320px;
+      margin: 0 auto 28px;
+    }
+    .hero-badges {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .badge {
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 20px;
+      padding: 5px 14px;
+      font-size: 12px;
+      color: #BDB8B0;
+    }
+
+    /* ── Category Nav ── */
+    .cat-nav-wrap {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--bg);
+      border-bottom: 1px solid var(--divider);
+      box-shadow: 0 1px 8px rgba(28,28,28,.06);
+    }
+    .cat-nav {
+      display: flex;
+      gap: 0;
+      overflow-x: auto;
+      scrollbar-width: none;
+      padding: 0 16px;
+    }
+    .cat-nav::-webkit-scrollbar { display: none; }
+    .cat-nav a {
+      flex-shrink: 0;
+      padding: 14px 18px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--mid);
+      text-decoration: none;
+      border-bottom: 2px solid transparent;
+      transition: color .2s, border-color .2s;
+      white-space: nowrap;
+    }
+    .cat-nav a:hover { color: var(--charcoal); }
+    .cat-nav a.active {
+      color: var(--gold-dark);
+      border-bottom-color: var(--gold);
+      font-weight: 600;
+    }
+
+    /* ── Sections ── */
+    .menu-section {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 16px 8px;
+    }
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .section-header h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.7rem;
+      font-weight: 700;
+    }
+    .section-header .section-note {
+      font-size: 12px;
+      color: var(--sage);
+      font-weight: 500;
+      letter-spacing: .06em;
+    }
+
+    /* ── Cards ── */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1px solid var(--divider);
+      overflow: hidden;
+      transition: transform .18s, box-shadow .18s;
+    }
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(28,28,28,.09);
+    }
+    .card-emoji {
+      font-size: 2.6rem;
+      padding: 22px 20px 8px;
+      display: block;
+      line-height: 1;
+    }
+    .card-body { padding: 4px 20px 20px; }
+    .card-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.05rem;
+      font-weight: 500;
+      margin-bottom: 6px;
+    }
+    .card-desc {
+      font-size: 13px;
+      color: var(--mid);
+      margin-bottom: 14px;
+      line-height: 1.55;
+    }
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .card-price {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--charcoal);
+    }
+    .card-tags { display: flex; gap: 6px; }
+    .tag {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .05em;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: #F0EDE8;
+      color: var(--mid);
+    }
+    .tag.spicy { background: #FDE8E8; color: #C0392B; }
+    .tag.veg   { background: #E8F0E8; color: #3A6B3A; }
+    .tag.new   { background: #FFF3D6; color: #8A6200; }
+
+    /* ── Divider ── */
+    .section-divider {
+      max-width: 900px;
+      margin: 0 auto;
+      border: none;
+      border-top: 1px solid var(--divider);
+    }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 40px 24px;
+      color: var(--mid);
+      font-size: 13px;
+    }
+    footer strong { color: var(--charcoal); }
+
+    @media (max-width: 480px) {
+      .card-grid { grid-template-columns: 1fr; }
+      .hero { padding: 48px 20px 36px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .card { transition: none; }
+      html { scroll-behavior: auto; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Hero -->
+<header class="hero">
+  <p class="hero-eyebrow">Est. 2019 · Open Daily</p>
+  <h1>Ember <em>&amp;</em> Grain</h1>
+  <p class="hero-sub">Wood-fired cooking, local ingredients, honest flavours.</p>
+  <div class="hero-badges">
+    <span class="badge">🕙 11am – 10pm</span>
+    <span class="badge">📍 12 Market Lane</span>
+    <span class="badge">☎ +1 555 0182</span>
+  </div>
+</header>
+
+<!-- Sticky Category Nav -->
+<nav class="cat-nav-wrap" aria-label="Menu categories">
+  <div class="cat-nav">
+    <a href="#starters"  class="active">Starters</a>
+    <a href="#mains">Mains</a>
+    <a href="#sides">Sides</a>
+    <a href="#desserts">Desserts</a>
+    <a href="#drinks">Drinks</a>
+  </div>
+</nav>
+
+<!-- ── Starters ── -->
+<section class="menu-section" id="starters">
+  <div class="section-header">
+    <h2>Starters</h2>
+    <span class="section-note">Small plates to share</span>
+  </div>
+  <div class="card-grid">
+
+    <div class="card">
+      <span class="card-emoji">🧀</span>
+      <div class="card-body">
+        <p class="card-name">Whipped Ricotta Crostini</p>
+        <p class="card-desc">House bread, lemon ricotta, roasted cherry tomatoes, fresh basil oil.</p>
+        <div class="card-footer">
+          <span class="card-price">$9</span>
+          <div class="card-tags"><span class="tag veg">Veg</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="card-emoji">🥗</span>
+      <div class="card-body">
+        <p class="card-name">Charred Corn Salad</p>
+        <p class="card-desc">Grilled corn, pickled jalapeño, cotija, smoked paprika dressing.</p>
+        <div class="card-footer">
+          <span class="card-price">$11</span>
+          <div class="card-tags"><span class="tag spicy">Hot</span><span class="tag veg">Veg</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="card-emoji">🍗</span>
+      <div class="card-body">
+        <p class="card-name">Crispy Chicken Wings</p>
+        <p class="card-desc">Buttermilk brined, smoked chilli glaze, blue cheese dip, celery.</p>
+        <div class="card-footer">
+          <span class="card-price">$14</span>
+          <div class="card-tags"><span class="tag spicy">Hot</span><span class="tag new">New</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="card-emoji">🥣</span>
+      <div class="card-body">
+        <p class="card-name">Roasted Tomato Soup</p>
+        <p class="card-desc">Slow-roasted vine tomatoes, cream, sourdough croutons, chive oil.</p>
+        <div class="card-footer">
+          <span class="card-price">$10</span>
+          <div class="card-tags"><span class="tag veg">Veg</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+<hr class="section-divider" />
+
+<!-- ── Mains ── -->
+<section class="menu-section" id="mains">
+  <div class="section-header">
+    <h2>Mains</h2>
+    <span class="section-note">Wood-fired &amp; hearth-cooked</span>
+  </div>
+  <div class="card-grid">
+
+    <div class="card">
+      <span class="card-emoji">🥩</span>
+      <div class="card-body">
+        <p class="card-name">Ember Ribeye (250g)</p>
+        <p class="card-desc">28-day dry-aged, ember butter, watercress, roasted bone marrow.</p>
+        <div class="card-footer">
+          <span class="card-price">$38</span>
+          <div class="card-tags"><span class="tag new">New</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="card-emoji">🍝</span>
+      <div class="card-body">
+        <p class="card-name">Pappardelle al Funghi</p>
+        <p class="card-desc">Hand-rolled pasta, wild mushroom ragù, parmesan, truffle oil.</p>
+        <div class="card-footer">
+          <span class="card-price">$22</span>
+          <div class="card-tags"><span class="tag veg">Veg</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="card-emoji">🐟</span>
+      <div class="card-body">
+        <p class="card-name">Wood-Fired Sea Bass</p>
+        <p class="card-desc">Whole branzino, lemon-caper beurre blanc, fennel salad, capers.</p>
+        <div class="card-footer">
+          <span class="card-price">$30</span>
+          <div class="card-tags"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="card-emoji">🍔</span>
+      <div class="card-body">
+        <p class="card-name">Grain Smash Burger</p>
+        <p class="card-desc">Double smash patty, aged cheddar, pickles, house sauce, brioche bun.</p>
+        <div class="card-footer">
+          <span class="card-price">$19</span>
+          <div class="card-tags"><span class="tag new">New</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="card-emoji">🥦</span>
+      <div class="card-body">
+        <p class="card-name">Roasted Cauliflower Steak</p>
+        <p class="card-desc">Whole roasted head, harissa, pomegranate, tahini, toasted pine nuts.</p>
+        <div class="card-footer">
+          <span class="card-price">$18</span>
+          <div class="card-tags"><span class="tag veg">Veg</span><span class="tag spicy">Hot</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="card-emoji">🍖</span>
+      <div class="card-body">
+        <p class="card-name">Slow-Cooked Lamb Shoulder</p>
+        <p class="card-desc">8-hour braised, mint gremolata, white bean purée, rosemary jus.</p>
+        <div class="card-footer">
+          <span class="card-price">$34</span>
+          <div class="card-tags"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+<hr class="section-divider" />
+
+<!-- ── Sides ── -->
+<section class="menu-section" id="sides">
+  <div class="section-header">
+    <h2>Sides</h2>
+    <span class="section-note">$7 each · Mix &amp; match</span>
+  </div>
+  <div class="card-grid">
+
+    <div class="card">
+      <span class="card-emoji">🍟</span>
+      <div class="card-body">
+        <p class="card-name">Twice-Cooked Fries</p>
+        <p class="card-desc">Duck-fat fried, rosemary salt, garlic aioli.</p>
+        <div class="card-footer">
+          <span class="card-price">$7</span>
+          <div class="card-tags"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="card-emoji">🥬</span>
+      <div class="card-body">
+        <p class="card-name">Grilled Broccolini</p>
+        <p class="card-desc">Chilli flakes, lemon zest, toasted almonds, olive oil.</p>
+        <div class="card-footer">
+          <span class="card-price">$7</span>
+          <div class="card-tags"><span class="tag veg">Veg</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="card-emoji">🍞</span>
+      <div class="card-body">
+        <p class="card-name">Sourdough &amp; Butter</p>
+        <p class="card-desc">House-baked sourdough, cultured whipped butter, sea salt.</p>
+        <div class="card-footer">
+          <span class="card-price">$7</span>
+          <div class="card-tags"><span class="tag veg">Veg</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="card-emoji">🫛</span>
+      <div class="card-body">
+        <p class="card-name">Creamed Corn</p>
+        <p class="card-desc">Sweet corn, smoked butter, jalapeño, parmesan cream.</p>
+        <div class="card-footer">
+          <span class="card-price">$7</span>
+          <div class="card-tags"><span class="tag veg">Veg</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+<hr class="section-divider" />
+
+<!-- ── Desserts ── -->
+<section class="menu-section" id="desserts">
+  <div class="section-header">
+    <h2>Desserts</h2>
+    <span class="section-note">Sweet endings</span>
+  </div>
+  <div class="card-grid">
+
+    <div class="card">
+      <span class="card-emoji">🍮</span>
+      <div class="card-body">
+        <p class="card-name">Burnt Caramel Custard</p>
+        <p class="card-desc">Classic crème brûlée, vanilla bean, caramelised sugar crust.</p>
+        <div class="card-footer">
+          <span class="card-price">$12</span>
+          <div class="card-tags"><span class="tag veg">Veg</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="card-emoji">🍫</span>
+      <div class="card-body">
+        <p class="card-name">Dark Chocolate Tart</p>
+        <p class="card-desc">72% Valrhona ganache, shortcrust pastry, sea-salt caramel, cream.</p>
+        <div class="card-footer">
+          <span class="card-price">$13</span>
+          <div class="card-tags"><span class="tag new">New</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="card-emoji">🍦</span>
+      <div class="card-body">
+        <p class="card-name">House Ice Cream (3 scoops)</p>
+        <p class="card-desc">Ask your server for today's flavours. Made fresh each morning.</p>
+        <div class="card-footer">
+          <span class="card-price">$10</span>
+          <div class="card-tags"><span class="tag veg">Veg</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+<hr class="section-divider" />
+
+<!-- ── Drinks ── -->
+<section class="menu-section" id="drinks">
+  <div class="section-header">
+    <h2>Drinks</h2>
+    <span class="section-note">Craft &amp; classic</span>
+  </div>
+  <div class="card-grid">
+
+    <div class="card">
+      <span class="card-emoji">🍷</span>
+      <div class="card-body">
+        <p class="card-name">House Red / White</p>
+        <p class="card-desc">Rotating seasonal selection from small producers. Ask for today's pour.</p>
+        <div class="card-footer">
+          <span class="card-price">$10 glass</span>
+          <div class="card-tags"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="card-emoji">🍺</span>
+      <div class="card-body">
+        <p class="card-name">Local Craft Beer</p>
+        <p class="card-desc">Rotating tap from three local breweries. Ask your server what's on.</p>
+        <div class="card-footer">
+          <span class="card-price">$9 pint</span>
+          <div class="card-tags"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="card-emoji">🍸</span>
+      <div class="card-body">
+        <p class="card-name">Ember Old Fashioned</p>
+        <p class="card-desc">Bourbon, smoked rosemary syrup, orange bitters, char-smoked ice.</p>
+        <div class="card-footer">
+          <span class="card-price">$16</span>
+          <div class="card-tags"><span class="tag new">New</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="card-emoji">🥤</span>
+      <div class="card-body">
+        <p class="card-name">Hibiscus Lemonade</p>
+        <p class="card-desc">House-made hibiscus syrup, fresh lemon, sparkling water, mint.</p>
+        <div class="card-footer">
+          <span class="card-price">$6</span>
+          <div class="card-tags"><span class="tag veg">Veg</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="card-emoji">☕</span>
+      <div class="card-body">
+        <p class="card-name">Specialty Coffee</p>
+        <p class="card-desc">Single-origin espresso, filter, or cold brew. Oat milk available.</p>
+        <div class="card-footer">
+          <span class="card-price">From $4</span>
+          <div class="card-tags"><span class="tag veg">Veg</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<footer>
+  <p>Please inform your server of any allergies or dietary requirements.</p>
+  <p style="margin-top:8px;"><strong>Ember &amp; Grain</strong> · 12 Market Lane · ☎ +1 555 0182</p>
+  <p style="margin-top:8px; font-size:11px; color:#A09A93;">Prices include tax. Menu changes seasonally.</p>
+</footer>
+
+<script>
+  // Highlight active category nav link on scroll
+  const sections = document.querySelectorAll('.menu-section');
+  const navLinks = document.querySelectorAll('.cat-nav a');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        navLinks.forEach(a => {
+          a.classList.toggle('active', a.getAttribute('href') === '#' + id);
+        });
+        // Scroll active link into view within nav
+        const activeLink = document.querySelector(`.cat-nav a[href="#${id}"]`);
+        if (activeLink) activeLink.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+      }
+    });
+  }, { rootMargin: '-30% 0px -60% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
